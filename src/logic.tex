@@ -1,0 +1,109 @@
+
+\begin{luacode}
+    dofile(kpse.find_file("logic.lua"))
+\end{luacode}
+
+
+\directlua{
+    dofile(kpse.find_file("export_color.lua"))
+    define_color("COLOR_HEX_EMPHASIS", "colorHexValue")
+}
+
+% Define color using expanded macro value
+\edef\colorHexExpanded{\colorHexValue}
+\definecolor{colorEmphasis}{HTML}{\colorHexExpanded}
+
+% LaTeX-ify Lua code
+\newcommand{\workingdays}{\directlua{count_working_days_prev_month()}}
+\newcommand{\lastdayprevmonth}{\directlua{tex.print(get_last_day_prev_month())}}
+\newcommand{\lastdayprevmonthoffsetby}[1]{\directlua{tex.print(get_last_day_prev_month_plus_offset(#1))}}
+\newcommand{\previousmonthyear}{\directlua{get_previous_month_string()}}
+
+
+% LaTeX interface: \invoicenumber{offset}{vacation_months}{start_month}{start_year}
+% Examples:
+% Suppose today is Sept 2025. Last month = Aug 2025.
+% Reference: May 2025 (month 5), so months_elapsed = 3 (June, July, Aug)
+% Offset: 90
+% Vacation: 1
+% => 90 + 3 - 1 = 92
+\newcommand{\invoiceNumberForPrevMonthWithDateAndOffsets}[4]{%
+  \directlua{
+    tex.print(invoice_number_for_previous_month_offset_by(#1, #2, #3, #4))
+  }%
+}
+\newcounter{cnt}
+\setcounter{cnt}{0}
+\def\inc{\stepcounter{cnt}\thecnt}
+\gdef\TotalHT{0}
+
+% ########## MACROS ###################
+
+\newcommand{\maybedash}[1]{%
+    \IfEqCase{#1}{%
+        {true}{-}%
+        {false}{}%
+    }
+}%
+
+
+% ####################### CONSTANTS ##############################
+\newcommand{\ourCompany}{\directlua{get_env("OUR_COMPANY_NAME")}}
+\newcommand{\ourOrgNo}{\directlua{get_env("OUR_COMPANY_ORG_NUMBER")}}
+\newcommand{\ourVATno}{\directlua{get_env("OUR_COMPANY_VAT_NUMBER")}}
+\newcommand{\ourReference}{\directlua{get_env("OUR_COMPANY_INVOICE_REF")}}
+\newcommand{\ourIBAN}{\directlua{get_env("OUR_COMPANY_BANK_IBAN")}}
+\newcommand{\ourBICcode}{\directlua{get_env("OUR_COMPANY_BANK_BIC")}}
+\newcommand{\ourPostalAddressLineOne}{\directlua{get_env("OUR_COMPANY_ADDR_LINE1")}}
+\newcommand{\ourPostalAddressLineTwo}{\directlua{get_env("OUR_COMPANY_ADDR_LINE2")}}
+\newcommand{\ourBankName}{\directlua{get_env("OUR_COMPANY_BANK_NAME")}}
+\newcommand{\ourCountry}{\directlua{get_env("OUR_COMPANY_ADDR_COUNTRY")}}
+\newcommand{\ourZIP}{\directlua{get_env("OUR_COMPANY_ADDR_ZIP")}}
+\newcommand{\ourCity}{\directlua{get_env("OUR_COMPANY_ADDR_CITY")}}
+\newcommand{\invoiceNoOffset}{\directlua{get_env("INVOICE_NUMBER_BASE_OFFSET")}}
+\newcommand{\invoiceNoOffsetNumberOfFreeMonths}{\directlua{get_env("INVOICE_NUMBER_MONTHS_FREE")}}
+\newcommand{\invoiceNoOffsetDateMonth}{\directlua{get_env("INVOICE_NUMBER_BASE_OFFSET_DATE_MONTH")}}
+\newcommand{\invoiceNoOffsetDateYear}{\directlua{get_env("INVOICE_NUMBER_BASE_OFFSET_DATE_YEAR")}}
+\newcommand\invoiceNo{
+    \invoiceNumberForPrevMonthWithDateAndOffsets
+        {\invoiceNoOffset}                      % arg0
+        {\invoiceNoOffsetNumberOfFreeMonths}    % arg1
+        {\invoiceNoOffsetDateMonth}             % arg2
+        {\invoiceNoOffsetDateYear}              % arg3
+} % since OffsetDate above
+
+
+% ##################### CLIENT & PROJECT DEPENDENT CONSTANTS #################
+\newcommand{\footerText}{\directlua{get_env("PROJECT_FOOTER_TEXT")}}
+\newcommand{\currency}{\directlua{get_env("CURRENCY")}}
+\newcommand{\dayRate}{\directlua{get_env("DAILY_RATE")}}
+\newcommand{\projectName}{\directlua{get_env("PROJECT_NAME_BASE")}}
+\newcommand{\projectPurchaseOrder}{\directlua{get_env("PROJECT_PURCHASE_ORDER")}}
+\newcommand{\daysToDueDate}{\directlua{get_env("INVOICE_DAYS_DUE_AFTER_END_OF_MONTH")}}
+\newcommand{\clientVAT}{\directlua{get_env("CLIENT_VAT")}}
+\newcommand{\clientName}{\directlua{get_env("CLIENT_NAME")}}
+\newcommand{\clientOrgNo}{\directlua{get_env("CLIENT_ORG_NO")}}
+\newcommand{\clientAddressLineOne}{\directlua{get_env("CLIENT_ADDR_LINE1")}}
+\newcommand{\clientAddressLineTwo}{\directlua{get_env("CLIENT_ADDR_LINE2")}}
+\newcommand{\clientAddressLineThree}{\directlua{get_env("CLIENT_ADDR_LINE3")}}
+
+
+
+% ##################### ACCOUNTING CALCULATION FUNCTIONS #################
+% Args = (description: String, unitPrice: Int, quantity: Int)
+\newcommand{\product}[3]{%
+
+% `temp = round(#2 * #3)`
+#1  &#2 \currency{}  &#3  &\FPmul\temp{#2}{#3}\FPround\temp{\temp}{2}\temp~\currency{}
+
+% `total = TotalHT + temp`
+\FPadd\total{\TotalHT}{\temp}%
+
+% `total = round(total)`
+\FPround\total{\total}{2}%
+
+% global: `TotalHT = total`
+\global\let\TotalHT\total%
+\\ }
+
+\newcommand{\totalttc}{\TotalHT~\currency{}}

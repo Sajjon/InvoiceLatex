@@ -1,0 +1,42 @@
+
+{\huge \ourCompany{}}
+
+\fancyput*(270pt,-20pt){\ovalbox{%
+    \begin{minipage}{185pt}
+      \Large \textbf{Invoice no: ~\textcolor{colorEmphasis}{\invoiceNo{}}}
+    \end{minipage}}}
+
+\fancyput*(270pt,-66pt){\ovalbox{%
+    \begin{minipage}{185pt}
+      \large \textbf{Purchase order: ~\textcolor{colorEmphasis}{\projectPurchaseOrder{}}}
+    \end{minipage}}}
+
+\fancyput*(270pt,-120pt){\ovalbox{%
+    \begin{minipage}{70pt}
+    \textbf{Invoice date:}\\ \lastdayprevmonth
+    \end{minipage}}}
+
+\fancyput*(385pt,-120pt){\ovalbox{%
+    \begin{minipage}{70pt}
+      \textbf{Due date:}\\ \lastdayprevmonthoffsetby{\daysToDueDate}
+    \end{minipage}}}
+
+
+\vspace{2em}
+\textbf{To:}\\[1em]
+\clientName{} (\clientOrgNo{})\\
+\clientAddressLineOne{}\\
+\clientAddressLineTwo{}\\
+\clientAddressLineThree{}
+
+\vspace{2em}
+\textbf{VAT:}\\[1em]
+\clientVAT{}
+
+\fancyput*(260pt,-172pt){
+    \begin{minipage}{200pt}
+      \begin{tabular}{ll}
+        \textbf{Our reference:} & \ourReference{} \\
+        \textbf{Terms:} & Net \daysToDueDate
+      \end{tabular}
+    \end{minipage}}

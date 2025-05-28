@@ -1,0 +1,44 @@
+# Company identity
+export OUR_COMPANY_NAME="Bra Detektiv AB"
+export OUR_COMPANY_ORG_NUMBER="556123-4567"
+export OUR_COMPANY_VAT_NUMBER="SE556123456701"
+export OUR_COMPANY_INVOICE_REF="Ture Svensson"
+
+# Company banking info
+export OUR_COMPANY_BANK_IBAN="SE3550000000054910000003"
+export OUR_COMPANY_BANK_BIC="ESSESESS"
+export OUR_COMPANY_BANK_NAME="SEB"
+
+# Company postal address
+export OUR_COMPANY_ADDR_LINE1="Storgatan 45"
+export OUR_COMPANY_ADDR_LINE2="4 tr"
+export OUR_COMPANY_ADDR_CITY="Stockholm"
+export OUR_COMPANY_ADDR_ZIP="114 32"
+export OUR_COMPANY_ADDR_COUNTRY="Sweden"
+
+# Invoice number generation
+export INVOICE_NUMBER_BASE_OFFSET=42
+export INVOICE_NUMBER_BASE_OFFSET_DATE_MONTH=4
+export INVOICE_NUMBER_BASE_OFFSET_DATE_YEAR=2025
+export INVOICE_NUMBER_MONTHS_FREE=0
+
+# Invoice settings
+export INVOICE_DAYS_DUE_AFTER_END_OF_MONTH=30
+export CURRENCY="EUR"
+export DAILY_RATE=350
+
+# Client identity
+export CLIENT_NAME="Holmes Ltd"
+export CLIENT_ORG_NO="987654-3210"
+export CLIENT_VAT="EU987654321"
+export CLIENT_ADDR_LINE1="221B Baker Street"
+export CLIENT_ADDR_LINE2="London, NW1 6XE"
+export CLIENT_ADDR_LINE3="England"
+
+# Project metadata
+export PROJECT_NAME_BASE="Detective work"
+export PROJECT_PURCHASE_ORDER="PO123"
+export PROJECT_FOOTER_TEXT="Reverse charge, article 9 (2) (e), 6th VAT-directive."
+
+# UI configuration
+export COLOR_HEX_EMPHASIS=E6007A

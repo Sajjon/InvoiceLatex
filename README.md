@@ -24,13 +24,13 @@ brew install direnv
 Clone this repo, then cd to it.
 
 ## Create `.envrc.secret`
-Make copy of [`.envrc.example`](.`.envrc.example`) and call it `.envrc.secret`
+Make copy of [`.envrc.example`](.envrc.example) and call it `.envrc.secret`
 
 ```bash
 cp .envrc.example .envrc.secret 
 ```
 
-Replace the placeholder values from [`.envrc.example`](.`.envrc.example`) with your company, client and project values.
+Replace the placeholder values from [`.envrc.example`](.envrc.example) with your company, client and project values.
 
 ## Source and make
 Source the updated environment variables by calling:
@@ -65,7 +65,27 @@ make ooo DAYS=5
 ```
 Which will subtract 5 from the number of working days that month (as calculated by the Lua script for you).
 
+
 # Example
-This is what the `.envrc.example` looks like.
+If you build the invoice without changing any of the example values from [`.envrc.example`](.envrc.example) it will look like this:
 
 ![Example](.github/assets/example_invoice.jpg)
+
+# How it works
+`direnv` will source [`.envrc`](.envrc) which in turn will source [`.envrc.example`](.envrc.example) and then if `.envrc.secret` exists, it will source that, effectively overriding the values of `.envrc.example`. If you haven't created `.envrc.secret` yet the values of `.envrc.example` are used instead, or if you were to comment out or remove any variable from  `.envrc.secret`, that variable won't be overridden.
+
+The LaTeX main file [`invoice.tex`](src/invoice.tex) will include other helper files, such as [`logic.tex`](src/logic.tex) which in turn wraps the lua functions inside [`logic.lua`](src/logic.lua) as LaTeX commands.
+
+# Contribute
+We use `pre-commit` to run some soundness checks when you try to commit, such as checking for typos.
+
+## Precommit
+Install [`pre-commit` CLI tool](https://pre-commit.com/):
+```bash
+brew install pre-commit
+```
+
+## Install pre-commit hooks
+```bash
+pre-commit install
+```

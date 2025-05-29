@@ -46,7 +46,7 @@ make
 Which will call out to `lualatex`.
 
 # Usage
-> [!INFO]
+> [!NOTE]
 > All enviroment variables references to in document are all set in `.envrc.secret` (which you should have copied over from `.envrc.example`).
 > They will all be exported when you call `direnv allow .` (needed once and then after each change to `.envrc.secret`, which you typically only upon intial setup)
 
@@ -64,7 +64,6 @@ If you were out of office for some days for the period you are invoicing you can
 make ooo DAYS=5
 ```
 Which will subtract 5 from the number of working days that month (as calculated by the Lua script for you).
-
 
 # Example
 This is what the `.envrc.example` looks like.

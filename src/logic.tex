@@ -14,7 +14,15 @@
 \definecolor{colorEmphasis}{HTML}{\colorHexExpanded}
 
 % LaTeX-ify Lua code
+\newcommand{\daysOOO}{\directlua{get_env_with_default("OOO_DAYS", 3)}}
 \newcommand{\workingdays}{\directlua{count_working_days_prev_month()}}
+\newcommand{\calcDaysToInvoice}[2]{\directlua{days_to_invoice(#1, #2)}}
+\newcommand\daysToInvoice{
+    \calcDaysToInvoice
+        {\workingdays}  % arg0
+        {\daysOOO}      % arg1
+}
+
 \newcommand{\lastdayprevmonth}{\directlua{tex.print(get_last_day_prev_month())}}
 \newcommand{\lastdayprevmonthoffsetby}[1]{\directlua{tex.print(get_last_day_prev_month_plus_offset(#1))}}
 \newcommand{\previousmonthyear}{\directlua{get_previous_month_string()}}

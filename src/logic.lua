@@ -91,3 +91,24 @@ function get_env(varname)
   end
   tex.print(value)
 end
+
+-- Function to read an environment variable and return it as an integer,
+-- or fall back to a default if not set or not a valid integer
+function get_env_with_default(env_name, default_val)
+  local val = os.getenv(env_name)
+  local num = tonumber(val)
+  if num == nil then
+    tex.print(default_val)
+  else
+    tex.print(num)
+  end
+end
+
+-- Function to calculate days to invoice
+function days_to_invoice(working_days, days_off)
+  local days_worked = working_days - days_off
+  if days_worked < 0 then
+    error("You specified too many days out of office, you specified OOO_DAYS=" .. days_off .. ", but the month only has: " .. working_days)
+  end
+  tex.print(days_worked)
+end

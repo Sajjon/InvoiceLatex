@@ -57,6 +57,15 @@ Set `INVOICE_NUMBER_BASE_OFFSET = 42` if you have sent 42 invoices already and w
 ## Did not invoice at all for some month?
 If you were out of office (OOO) for an entire month, maybe due to parental leave or long vacation or long term sickness, you can set increment `INVOICE_NUMBER_MONTHS_FREE` by how many numbers of months you where OOO. This allows you to not have to "hacky" decrement your `INVOICE_NUMBER_BASE_OFFSET` to get the correct invoice number for the next month.
 
+## Out of office for **some** days?
+If you were out of office for some days for the period you are invoicing you can call:
+
+```bash
+make ooo DAYS=5
+```
+Which will subtract 5 from the number of working days that month (as calculated by the Lua script for you).
+
+
 # Example
 This is what the `.envrc.example` looks like.
 

@@ -108,7 +108,9 @@ end
 function days_to_invoice(working_days, days_off)
   local days_worked = working_days - days_off
   if days_worked < 0 then
-    error("You specified too many days out of office, you specified OOO_DAYS=" .. days_off .. ", but the month only has: " .. working_days)
+    error("You specified too many days out of office, you specified OOO_DAYS=" .. days_off .. ", but the month only has: " .. working_days .. " days.")
+  elseif days_worked == 0 then
+    error("You were out of office exactly ALL days this month, you should skip invoicing this month and increment the `INVOICE_NUMBER_MONTHS_FREE` variable in `.envrc.secret` by 1.")
   end
   tex.print(days_worked)
 end

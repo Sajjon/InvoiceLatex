@@ -84,12 +84,17 @@ function get_previous_month_string()
   tex.print(result)
 end
 
-function get_env(varname)
+function _get_env(varname)
   local value = os.getenv(varname)
   if not value then
     error("Environment variable " .. varname .. " is not set!")
   end
-  tex.print(value)
+  return value
+end
+
+function get_env(varname)
+    local value = _get_env(varname)
+    tex.print(value)
 end
 
 -- Function to read an environment variable and return it as an integer,
@@ -113,4 +118,35 @@ function days_to_invoice(working_days, days_off)
     error("You were out of office exactly ALL days this month, you should skip invoicing this month and increment the `INVOICE_NUMBER_MONTHS_FREE` variable in `.envrc.secret` by 1.")
   end
   tex.print(days_worked)
+end
+
+function _get_invoice_number()
+    local invoice_offset = _get_env("INVOICE_NUMBER_BASE_OFFSET")
+    local invoice_months_free = _get_env("INVOICE_NUMBER_MONTHS_FREE")
+    local invoice_start_month = _get_env("INVOICE_NUMBER_BASE_OFFSET_DATE_MONTH")
+    local invoice_start_year = _get_env("INVOICE_NUMBER_BASE_OFFSET_DATE_YEAR")
+    return invoice_number_for_previous_month_offset_by(
+        math.tointeger(invoice_offset),
+        math.tointeger(invoice_months_free),
+        math.tointeger(invoice_start_month),
+        math.tointeger(invoice_start_year)
+    )
+end
+
+function get_invoice_number()
+    local invoice_number = _get_invoice_number()
+    tex.print(invoice_number)
+end
+
+function output_invoice_number_and_date()
+    local tmp_file_path = _get_env("INVOICE_NUMBER_AND_DATE_PATH")
+    local separator = _get_env("INVOICE_NUMBER_AND_DATE_SEPARATOR")
+    local invoice_number = _get_invoice_number()
+    local invoice_number_and_invoice_date = invoice_number .. separator .. get_last_day_prev_month()
+    local file = io.open(tmp_file_path, "w")
+    if not file then
+        error("Could not open file for writing: " .. tmp_file_path)
+    end
+    file:write(invoice_number_and_invoice_date)
+    file:close()
 end

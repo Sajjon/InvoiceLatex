@@ -13,10 +13,6 @@ A config **once**, inter-month-idempotent, calendar aware, and **maintenance-fre
 
 With minimal modification this ought to work on Linux too, but I've only verified it on macOS.
 
-## LaTeX
-
-Install [LaTeX (MacTeX) here](https://tug.org/mactex/)
-
 ## `direnv`
 
 Install [direnv](https://direnv.net/)
@@ -24,6 +20,57 @@ Install [direnv](https://direnv.net/)
 ```bash
 brew install direnv
 ```
+
+Direnv allows your system to automatically to load the environment variables standing in this projects.
+
+## LaTeX
+There are two different ways of installing LaTeX on macOS. Either install [MacTeX](https://tug.org/mactex) which is a complete and very big distribution, which will eat up ~10 gb of your space. Use that if you have all that space to spare and want the easiest installation. Alternatively you can install TinyTex which is a much (typically 90%) smaller distribution. I recommend TinyTex since it is small and fast and it only has one extra required installation step which is fast and easy.
+
+## TinyTex
+
+Install [LaTeX (TinyTex) here](https://yihui.org/tinytex/)
+
+```sh
+curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh
+```
+You will be prompted for your password.
+
+A package manager called `tlmgr` is now installed, we will use it in the next section to install some packages.
+
+### Install LaTeX Packages
+Install the following packages:
+```sh
+tlmgr install babel-english fancyhdr arydshln lastpage datetime2 fp ragged2e xstring fancybox luacode threeparttable
+```
+
+LaTeX should now be setup!
+
+### Uninstalling MacTex
+If you have previously installed MacTex and want to switch over to TinyTex, uninstall MacTex like so:
+
+#### Remove MacTeX package files
+Run this command in Terminal to remove the main MacTeX installation (typically 4-9 GB):
+```sh
+sudo rm -rf /usr/local/texlive
+```
+
+#### Remove the TeX Live utility symlinks
+These links point to the binaries inside the MacTeX install.
+```sh
+sudo rm -rf /Library/TeX
+```
+
+You may also want to remove any profile entries from:
+```sh
+sudo rm /etc/paths.d/TeX
+```
+
+#### Remove GUI apps installed by MacTeX
+These may include:
+* TeX Live Utility (/Applications/TeX)
+* TeXShop (/Applications/TeXShop.app)
+
+You can delete them manually from the `/Applications` folder.
 
 # Setup
 

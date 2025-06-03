@@ -36,6 +36,7 @@ __luatex_build_with_ooo_days:
 # sed: Cleans the prefix (./logic.lua:111:) so only the error message remains.
 # fold: Wraps long lines nicely in your terminal (optional but makes things prettier).
 ___luatex_build_with_ooo_days:
+	./assert_required_packages_installed.sh
 	@mkdir -p $(OUTPUT)
 	@mkdir -p $(INVOICES_FOLDER)
 	@echo "🔧 Building invoice (OOO_DAYS=$(OOO_DAYS))..."

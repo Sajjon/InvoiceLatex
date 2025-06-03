@@ -38,7 +38,7 @@ export CLIENT_ADDR_LINE3="England"
 # Project metadata
 export PROJECT_NAME_BASE="Detective work"
 export PROJECT_PURCHASE_ORDER="PO123"
-export PROJECT_FOOTER_TEXT="Reverse charge, article 9 (2) (e), 6th VAT-directive."
+export PROJECT_FOOTER_TEXT="Reverse VAT according to chapter 1 2§ first section 4b in the VAT regulation"
 
 # UI configuration
 export COLOR_HEX_EMPHASIS=E6007A

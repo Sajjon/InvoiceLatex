@@ -68,17 +68,7 @@
 \newcommand{\ourCountry}{\directlua{get_env("OUR_COMPANY_ADDR_COUNTRY")}}
 \newcommand{\ourZIP}{\directlua{get_env("OUR_COMPANY_ADDR_ZIP")}}
 \newcommand{\ourCity}{\directlua{get_env("OUR_COMPANY_ADDR_CITY")}}
-\newcommand{\invoiceNoOffset}{\directlua{get_env("INVOICE_NUMBER_BASE_OFFSET")}}
-\newcommand{\invoiceNoOffsetNumberOfFreeMonths}{\directlua{get_env("INVOICE_NUMBER_MONTHS_FREE")}}
-\newcommand{\invoiceNoOffsetDateMonth}{\directlua{get_env("INVOICE_NUMBER_BASE_OFFSET_DATE_MONTH")}}
-\newcommand{\invoiceNoOffsetDateYear}{\directlua{get_env("INVOICE_NUMBER_BASE_OFFSET_DATE_YEAR")}}
-\newcommand\invoiceNo{
-    \invoiceNumberForPrevMonthWithDateAndOffsets
-        {\invoiceNoOffset}                      % arg0
-        {\invoiceNoOffsetNumberOfFreeMonths}    % arg1
-        {\invoiceNoOffsetDateMonth}             % arg2
-        {\invoiceNoOffsetDateYear}              % arg3
-} % since OffsetDate above
+\newcommand{\invoiceNo}{\directlua{get_invoice_number()}}
 
 
 % ##################### CLIENT & PROJECT DEPENDENT CONSTANTS #################

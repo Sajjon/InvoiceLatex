@@ -18,7 +18,7 @@ pkgs=(
 # Check each package with kpsewhich
 for pkg in "${pkgs[@]}"; do
   if ! kpsewhich "${pkg}" > /dev/null; then
-    echo "Missing package: ${pkg}" >&2
+    echo "❌ LaTeX will fail to build, missing LaTeX package: '${pkg}', if you are using TinyTex you can install it with: 'tlmgr install ${pkg}' (did you miss 'Install LaTeX Packages' section of readme?)." >&2
     exit 1
   fi
 done

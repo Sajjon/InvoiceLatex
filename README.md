@@ -142,23 +142,23 @@ If you were out of office for some days for the period you are invoicing you can
 make DAYS_OFF=5
 ```
 
-## Expenses?
-
-```sh
-make EXPENSES="'Sandwich,8.67,1';'Coffee,4.20,2'"
-```
-
-Or if you had days of and expenses:
-
-```sh
-make DAYS_OFF=2 EXPENSES="'Headphones,79.99,1'"
-```
-
 Which will subtract 5 from the number of working days that month (as calculated by the Lua script for you).
+
+### Expenses
+
+> [!IMPORTANT]
+> `only_expenses` command requires you to insert the expenses string in
+> `.encrc.secret` into INVOICE_EXPENSES_PER_MONTH dictionary. Because we need to offset
+> the invoice number for all future invoices, depending on number of entries in
+> `INVOICE_EXPENSES_PER_MONTH` and target date.
+
+```sh
+make only_expenses
+```
 
 # Example
 
-If you build the invoice without changing any of the example values from [`.envrc.example`](.envrc.example), built with `make DAYS_OFF=3 EXPENSES="'Sandwich,8.67,1';'Coffee,4.20,2'"` it will look like this:
+If you build the invoice without changing any of the example values from [`.envrc.example`](.envrc.example), built with `make DAYS_OFF=3` it will look like this:
 
 ![Example](.github/assets/example_invoice.jpg)
 

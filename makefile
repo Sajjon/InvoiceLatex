@@ -6,15 +6,13 @@ INVOICE_NUMBER_AND_DATE_FILE=temp_invoice_name_and_date.txt
 export INVOICE_NUMBER_AND_DATE_SEPARATOR="_"
 export INVOICE_NUMBER_AND_DATE_PATH=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))$(OUTPUT)/$(INVOICE_NUMBER_AND_DATE_FILE)
 
-.PHONY: build clean
+.PHONY: build clean do_build
 
 # Default target to run LaTeX with environment variable
 # 
 # Usage:
 # make
 # make DAYS_OFF=5
-# make EXPENSES="'Sandwich,8.67,1';'Coffee,4.20,2'"
-# make DAYS_OFF=2 EXPENSES="'Headphones,79.99,1'"
 #
 # Implementation:
 # @mkdir -p $(OUTPUT): create output folder if needed.
@@ -23,12 +21,9 @@ export INVOICE_NUMBER_AND_DATE_PATH=$(dir $(abspath $(lastword $(MAKEFILE_LIST))
 # grep: Finds the Lua error line in logic.lua including 2 lines after (like a wrapped message)
 # sed: Cleans the prefix (./logic.lua:111:) so only the error message remains.
 # fold: Wraps long lines nicely in your terminal (optional but makes things prettier).
-make:
-	@./assert_required_packages_installed.sh
-	@mkdir -p $(OUTPUT)
-	@mkdir -p $(INVOICES_FOLDER)
-	@echo "🔧 Building invoice (days off=$(DAYS_OFF), expenses=$(EXPENSES))..."
-	@TEXINPUTS=./$(INPUT_PATH): lualatex --shell-escape --halt-on-error --interaction=nonstopmode --output-directory=$(OUTPUT) $(INPUT_PATH)/$(INPUT_FILE).tex > $(OUTPUT)/build.log 2>&1 || (\
+build:
+	@$(MAKE) do_build \
+	 || (\
 	  echo "❌ LuaLaTeX build failed. Extracting error:"; \
 	  grep -A 2 '^.*logic.lua:[0-9]*:' build/build.log | sed 's/^.*logic.lua:[0-9]*: //' | fold -s; \
 	  exit 1 \
@@ -42,6 +37,13 @@ make:
 	echo "📁 created invoice at '$$INVOICE_FILE_PATH', opening it now..." && \
 	mv $(OUTPUT)/$(INPUT_FILE).pdf $$INVOICE_FILE_PATH && \
 	open $$INVOICE_FILE_PATH
+
+do_build: 
+	@./assert_required_packages_installed.sh
+	@mkdir -p $(OUTPUT)
+	@mkdir -p $(INVOICES_FOLDER)
+	@echo "🔧 Building invoice (days off=$(DAYS_OFF))..."
+	@TEXINPUTS=./$(INPUT_PATH): lualatex --shell-escape --halt-on-error --interaction=nonstopmode --output-directory=$(OUTPUT) $(INPUT_PATH)/$(INPUT_FILE).tex
 
 clean:
 	@rm -rf build/

@@ -16,11 +16,21 @@ export OUR_COMPANY_ADDR_CITY="Stockholm"
 export OUR_COMPANY_ADDR_ZIP="114 32"
 export OUR_COMPANY_ADDR_COUNTRY="Sweden"
 
-# Invoice number generation
+# Invoice number generation and expenses
 export INVOICE_NUMBER_BASE_OFFSET=42
 export INVOICE_NUMBER_BASE_OFFSET_DATE_MONTH=4
 export INVOICE_NUMBER_BASE_OFFSET_DATE_YEAR=2025
 export INVOICE_NUMBER_MONTHS_FREE=0
+export INVOICE_EXPENSES_PER_MONTH='{
+  ["2025-05"] = {
+    description = "Travel to London",
+    entries = {
+      "2025-05-01,Coffee,4.5,GBP,1",
+      "2025-05-02,Sandwich,8.74,GBP,1",
+      "2025-05-18,Coffee,4.5,GBP,1"
+    }
+  }
+}'
 
 # Invoice settings
 export INVOICE_DAYS_DUE_AFTER_END_OF_MONTH=30

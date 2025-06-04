@@ -26,7 +26,7 @@ function count_working_days_prev_month()
 end
 
 -- Get last day of the previous month as a date string
-function get_last_day_prev_month()
+function get_last_day_prev_month_as_date()
   local today = os.date("*t")
   local prev_month = today.month - 1
   local year = today.year
@@ -36,8 +36,20 @@ function get_last_day_prev_month()
     year = year - 1
   end
 
-  local last_day = os.time{year = today.year, month = today.month, day = 0}
-  return os.date("%Y-%m-%d", last_day)
+  local last_day_ts = os.time{year = today.year, month = today.month, day = 0}
+  local last_day_date = os.date("*t", last_day_ts)
+  return new_date(year, prev_month, last_day_date.day)
+end
+
+function get_last_day_prev_month()
+    local date = get_last_day_prev_month_as_date()
+    return format_date(date)
+end
+
+-- Return YYYY-MM
+function get_last_month_str()
+    local date = get_last_day_prev_month_as_date()
+    return format_date_as_year_and_month(date)
 end
 
 -- Return date string of (last day of previous month + offset in days)
@@ -138,19 +150,196 @@ function get_invoice_number()
   tex.print(invoice_number)
 end
 
-function emit_expenses_products()
-  local expenses = os.getenv("EXPENSES")
-  if not expenses or expenses == "" then return end
-  -- Split on ';'
-  for entry in string.gmatch(expenses, "([^;]+)") do
-    -- Remove leading/trailing quotes and whitespace
-    entry = entry:gsub("^['\"]", ""):gsub("['\"]$", ""):gsub("^%s+", ""):gsub("%s+$", "")
-    -- Split on ','
-    local desc, price, qty = entry:match("([^,]+),([^,]+),([^,]+)")
-    if desc and price and qty then
-      tex.print("\\hdashline \\product{" .. desc .. "}{" .. price .. "}{" .. qty .. "}")
+-- === Simulated Enum: Currency ===
+Currency = {
+  EUR = "EUR",
+  ALL = "ALL",
+  AMD = "AMD",
+  AZN = "AZN",
+  BAM = "BAM",
+  BGN = "BGN",
+  CHF = "CHF",
+  CZK = "CZK",
+  DKK = "DKK",
+  GEL = "GEL",
+  GBP = "GBP",
+  HUF = "HUF",
+  ISK = "ISK",
+  MDL = "MDL",
+  MKD = "MKD",
+  NOK = "NOK",
+  PLN = "PLN",
+  RON = "RON",
+  RSD = "RSD",
+  RUB = "RUB",
+  SEK = "SEK",
+  TRY = "TRY",
+  UAH = "UAH",
+}
+
+-- === Structs ===
+function new_date(y, m, d)
+  return { year = tonumber(y), month = tonumber(m), day = tonumber(d) }
+end
+function new_date_from_string(s)
+  local y, m, d = s:match("(%d+)%-(%d+)%-(%d+)")
+  return new_date(y, m, d)
+end
+
+-- Returns YYYY-MM
+function format_date_as_year_and_month(date)
+    local year = date.year
+    if not year then
+        error("Date argument not proper Daet struct, missing 'year' field.")
+    end
+    local month = date.month
+    if not month then
+        error("Date argument not proper Date struct, missing 'month' field.")
+    end
+  return string.format("%04d-%02d", year, month)
+end
+
+function format_date(date)
+    local year = date.year
+    if not year then
+        error("Date argument not proper Daet struct, missing 'year' field.")
+    end
+    local month = date.month
+    if not month then
+        error("Date argument not proper Date struct, missing 'month' field.")
+    end
+    local day = date.day
+    if not day then
+        error("Date argument not proper Date struct, missing 'day' field.")
+    end
+  return string.format("%04d-%02d-%02d", year, month, day)
+end
+
+function new_expense(item, currency, cost, quantity, date)
+  return {
+    item = item,
+    currency = currency,
+    cost = cost,
+    quantity = quantity,
+    date = date
+  }
+end
+
+function format_product_row(expense)
+  return string.format("\\product{%s}{%.2f}{%.2f}", expense.item, expense.cost, expense.quantity)
+end
+
+
+-- date should be `YYYY-MM-DD`
+function fetch_exchange_rate_str(date, from, to)
+  if from == to then return 1.0 end
+  local url = string.format("https://api.frankfurter.app/%s?from=%s&to=%s", date, from, to)
+  local cmd = string.format("curl -s \"%s\"", url)
+  local handle = io.popen(cmd)
+  local result = handle:read("*a")
+  handle:close()
+
+  -- Build pattern for extracting the rate
+  local pattern = '"' .. to .. '"%s*:%s*([%d%.]+)'
+  local rate = result:match(pattern)
+
+  if rate then
+    return tonumber(rate)
+  else
+    return nil
+  end
+end
+
+-- Pure Lua function: returns the exchange rate as a float
+function fetch_exchange_rate(date, from, to)
+    local date_str = format_date(date) -- Ensure date is formatted correctly
+    return fetch_exchange_rate_str(date_str, from, to)
+end
+
+
+-- Invoice month should be in the format "YYYY-MM"
+function expenses_for_month_as_string(invoice_month, target_currency)
+  local raw = os.getenv("INVOICE_EXPENSES_PER_MONTH")
+  if not raw then return "" end
+
+  local chunk, err = load("return " .. raw)
+  if not chunk then
+    tex.print("Error loading data: " .. (err or ""))
+    return ""
+  end
+
+  local all_expenses = chunk()
+  local expenses_for_month = all_expenses[invoice_month]
+  if not expenses_for_month then return "" end
+
+  -- local output = "\"" .. expenses_for_month.description .. "\""
+  local output = ""
+  local exchange_rates = {}
+  local number_of_entries = #expenses_for_month.entries
+  if number_of_entries > 0 then
+    output = "\\hdashline"
+  end
+  for index, entry in ipairs(expenses_for_month.entries) do
+    -- Format: "2025-05-01,Coffee,4.5,GBP,1"
+    local date_str, item, cost, currency, quantity = entry:match("([^,]+),([^,]+),([^,]+),([^,]+),(%d+%.?%d*)")
+    cost = tonumber(cost)
+    if not cost then
+      error("Invalid cost value: " .. entry)
+      return ""
+    end
+    if date_str == nil or date_str == "" then
+      error("Invalid date value: " .. entry)
+      return ""
+    end
+    if currency == nil or currency == "" then
+      error("Invalid currency value: " .. entry)
+      return ""
+    end
+    if quantity == nil or quantity == "" then
+       error("Invalid quantity value: " .. entry)
+      return ""
+    end
+    quantity = tonumber(quantity)
+    if quantity == nil or quantity == 0 then quantity = 1 end
+
+    local date = new_date_from_string(date_str)
+    local key = currency .. "_" .. target_currency
+    local rate = exchange_rates[key]
+
+    if not rate then
+      rate = fetch_exchange_rate(date, currency, target_currency)
+      exchange_rates[key] = rate
+    end
+
+    local converted_cost = cost * rate
+    local expense = new_expense(item, target_currency, converted_cost, quantity, date)
+    local row = format_product_row(expense)
+
+    output = output .. row
+    local is_last = (index == number_of_entries)
+    if not is_last then
+      output = output .. "\\hdashline"
     end
   end
+
+  return output
+end
+
+function emit_expenses_products()
+  local product_table = expenses_for_month_as_string(get_last_month_str(), _get_env("CURRENCY"))
+
+    -- local file_path = "product_table.txt"  -- Change path if needed
+    -- local file = io.open(file_path, "w")
+    -- if not file then
+    --     error("Could not open file for writing: " .. file_path)
+    -- end
+    -- file:write(product_table)
+    -- file:close()
+    -- error("🌈 Product table written to " .. file_path)
+
+  -- tex.sprint(tex.ctxcatcodes, product_table)
+  -- return product_table
+  tex.print(product_table)
 end
 
 function output_invoice_number_and_date()

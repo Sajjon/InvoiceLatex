@@ -113,7 +113,7 @@ end
 function days_to_invoice(working_days, days_off)
   local days_worked = working_days - days_off
   if days_worked < 0 then
-    error("You specified too many days out of office, you specified OOO_DAYS=" .. days_off .. ", but the month only has: " .. working_days .. " days.")
+    error("You specified too many days out of office, you specified DAYS_OFF=" .. days_off .. ", but the month only has: " .. working_days .. " days.")
   elseif days_worked == 0 then
     error("You were out of office exactly ALL days this month, you should skip invoicing this month and increment the `INVOICE_NUMBER_MONTHS_FREE` variable in `.envrc.secret` by 1.")
   end
@@ -136,6 +136,21 @@ end
 function get_invoice_number()
   local invoice_number = _get_invoice_number()
   tex.print(invoice_number)
+end
+
+function emit_expenses_products()
+  local expenses = os.getenv("EXPENSES")
+  if not expenses or expenses == "" then return end
+  -- Split on ';'
+  for entry in string.gmatch(expenses, "([^;]+)") do
+    -- Remove leading/trailing quotes and whitespace
+    entry = entry:gsub("^['\"]", ""):gsub("['\"]$", ""):gsub("^%s+", ""):gsub("%s+$", "")
+    -- Split on ','
+    local desc, price, qty = entry:match("([^,]+),([^,]+),([^,]+)")
+    if desc and price and qty then
+      tex.print("\\hdashline \\product{" .. desc .. "}{" .. price .. "}{" .. qty .. "}")
+    end
+  end
 end
 
 function output_invoice_number_and_date()

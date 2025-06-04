@@ -4,8 +4,9 @@
 \begin{tabular*}{\linewidth}{Lrcr}\hline\hline
 \textbf{Description}  & \multicolumn{1}{l}{\textbf{Daily rate}} &  \multicolumn{1}{l}{\textbf{Qty}} & \multicolumn{1}{l}{\textbf{Total}} \\
 \hline
-    \product{\projectName~\previousmonthyear}{\dayRate{}}{\daysToInvoice{}}\hdashline
-    \multicolumn{3}{r@{~~~}}{\Large\textbf{Total}} & \Large\textcolor{colorEmphasis}{\textbf{\totalttc}}\\
+    \product{\projectName~\previousmonthyear}{\dayRate{}}{\daysToInvoice{}}
+    \directlua{emit_expenses_products()}
+    \hline \multicolumn{3}{r@{~~~}}{\Large\textbf{Total}} & \Large\textcolor{colorEmphasis}{\textbf{\totalttc}}\\
 \hline\hline
 \end{tabular*}
 \end{threeparttable}

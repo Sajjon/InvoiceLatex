@@ -1,12 +1,13 @@
 # LaTeX Invoice
 
-A config **once**, inter-month-idempotent, calendar aware, and **maintenance-free** invoice solution written in LaTeX + Lua.
+A config **once**, inter-month-idempotent, calendar aware, capable and **maintenance-free** invoice solution written in LaTeX + Lua.
 
 # Features
 
 -   Config once: Set your company, client and project information using ENV vars in the `.envrc.secret` file (git ignored). **No LaTeX or Lua skills needed!**
 -   Inter-month-idempotent: You build the invoice any number of times, it always results in the same invoice number when run within the same month. The proceeding month the next invoice number will be used.
 -   Calendar aware: Using your machines system time to determine the month, it calculates the number of working days for the target month. Invoice date is set to last day of the target month and due date is set dependent on the payment terms set in your ENV config.
+-   Capable: Supports setting number of days you were off, to be extracted from the automatically calculated number of working days. Supports expenses using "'<PRODUCT0>,<COST>,<QUANTITY>';'<PRODUCT1>,<COST>,<QUANTITY>'" CSV inspired string.
 -   Maintenance free: The invoice number automatically set based on the current month. When you build the invoice the next month, the next number is used.
 
 # Requirements
@@ -17,13 +18,14 @@ With minimal modification this ought to work on Linux too, but I've only verifie
 
 Install [direnv](https://direnv.net/)
 
-```bash
+```sh
 brew install direnv
 ```
 
 Direnv allows your system to automatically to load the environment variables standing in this projects.
 
 ## LaTeX
+
 There are two different ways of installing LaTeX on macOS. Either install [MacTeX](https://tug.org/mactex) which is a complete and very big distribution, which will eat up ~10 gb of your space. Use that if you have all that space to spare and want the easiest installation. Alternatively you can install TinyTex which is a much (typically 90%) smaller distribution. I recommend TinyTex since it is small and fast and it only has one extra required installation step which is fast and easy.
 
 ## TinyTex
@@ -33,12 +35,15 @@ Install [LaTeX (TinyTex) here](https://yihui.org/tinytex/)
 ```sh
 curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh
 ```
+
 You will be prompted for your password.
 
 A package manager called `tlmgr` is now installed, we will use it in the next section to install some packages.
 
 ### Install LaTeX Packages
+
 Install the following packages:
+
 ```sh
 tlmgr install babel-english fancyhdr arydshln lastpage datetime2 fp ragged2e xstring fancybox luacode threeparttable
 ```
@@ -46,29 +51,37 @@ tlmgr install babel-english fancyhdr arydshln lastpage datetime2 fp ragged2e xst
 LaTeX should now be setup!
 
 ### Uninstalling MacTex
+
 If you have previously installed MacTex and want to switch over to TinyTex, uninstall MacTex like so:
 
 #### Remove MacTeX package files
+
 Run this command in Terminal to remove the main MacTeX installation (typically 4-9 GB):
+
 ```sh
 sudo rm -rf /usr/local/texlive
 ```
 
 #### Remove the TeX Live utility symlinks
+
 These links point to the binaries inside the MacTeX install.
+
 ```sh
 sudo rm -rf /Library/TeX
 ```
 
 You may also want to remove any profile entries from:
+
 ```sh
 sudo rm /etc/paths.d/TeX
 ```
 
 #### Remove GUI apps installed by MacTeX
+
 These may include:
-* TeX Live Utility (/Applications/TeX)
-* TeXShop (/Applications/TeXShop.app)
+
+-   TeX Live Utility (/Applications/TeX)
+-   TeXShop (/Applications/TeXShop.app)
 
 You can delete them manually from the `/Applications` folder.
 
@@ -80,7 +93,7 @@ Clone this repo, then cd to it.
 
 Make copy of [`.envrc.example`](.envrc.example) and call it `.envrc.secret`
 
-```bash
+```sh
 cp .envrc.example .envrc.secret
 ```
 
@@ -90,13 +103,13 @@ Replace the placeholder values from [`.envrc.example`](.envrc.example) with your
 
 Source the updated environment variables by calling:
 
-```bash
+```sh
 direnv allow .
 ```
 
 And now call make:
 
-```bash
+```sh
 make
 ```
 
@@ -125,15 +138,27 @@ If you were out of office (OOO) for an entire month, maybe due to parental leave
 
 If you were out of office for some days for the period you are invoicing you can call:
 
-```bash
-make ooo DAYS=5
+```sh
+make DAYS_OFF=5
+```
+
+## Expenses?
+
+```sh
+make EXPENSES="'Sandwich,8.67,1';'Coffee,4.20,2'"
+```
+
+Or if you had days of and expenses:
+
+```sh
+make DAYS_OFF=2 EXPENSES="'Headphones,79.99,1'"
 ```
 
 Which will subtract 5 from the number of working days that month (as calculated by the Lua script for you).
 
 # Example
 
-If you build the invoice without changing any of the example values from [`.envrc.example`](.envrc.example) it will look like this:
+If you build the invoice without changing any of the example values from [`.envrc.example`](.envrc.example), built with `make DAYS_OFF=3 EXPENSES="'Sandwich,8.67,1';'Coffee,4.20,2'"` it will look like this:
 
 ![Example](.github/assets/example_invoice.jpg)
 
@@ -151,12 +176,12 @@ We use `pre-commit` to run some soundness checks when you try to commit, such as
 
 Install [`pre-commit` CLI tool](https://pre-commit.com/):
 
-```bash
+```sh
 brew install pre-commit
 ```
 
 ## Install pre-commit hooks
 
-```bash
+```sh
 pre-commit install
 ```

@@ -3,30 +3,18 @@ INPUT_PATH=src
 OUTPUT=build
 INVOICES_FOLDER=invoices
 INVOICE_NUMBER_AND_DATE_FILE=temp_invoice_name_and_date.txt
-INVOICE_NUMBER_AND_DATE_SEP="_"
+export INVOICE_NUMBER_AND_DATE_SEPARATOR="_"
+export INVOICE_NUMBER_AND_DATE_PATH=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))$(OUTPUT)/$(INVOICE_NUMBER_AND_DATE_FILE)
 
-.PHONY: bau clean ooo __luatex_build_with_ooo_days ___luatex_build_with_ooo_days
+.PHONY: build clean
 
-# Business As Usual (BAU) - all working days worked.
-# Default target
-bau:
-	@$(MAKE) __luatex_build_with_ooo_days OOO_DAYS=0
-
-clean:
-	@rm -rf build/
-	@echo "🧹 Cleaned"
-
-# Out of Office (OOO) for `DAYS` many days
-ooo:
-ifndef DAYS
-	$(error You must specify DAYS, e.g., 'make ooo DAYS=4')
-endif
-	@$(MAKE) __luatex_build_with_ooo_days OOO_DAYS=$(DAYS)
-
-__luatex_build_with_ooo_days:
-	@$(MAKE) ___luatex_build_with_ooo_days INVOICE_NUMBER_AND_DATE_PATH=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))$(OUTPUT)/$(INVOICE_NUMBER_AND_DATE_FILE) INVOICE_NUMBER_AND_DATE_SEPARATOR=$(INVOICE_NUMBER_AND_DATE_SEP)
-
-# Internal target to run LaTeX with environment variable
+# Default target to run LaTeX with environment variable
+# 
+# Usage:
+# make
+# make DAYS_OFF=5
+# make EXPENSES="'Sandwich,8.67,1';'Coffee,4.20,2'"
+# make DAYS_OFF=2 EXPENSES="'Headphones,79.99,1'"
 #
 # Implementation:
 # @mkdir -p $(OUTPUT): create output folder if needed.
@@ -35,17 +23,17 @@ __luatex_build_with_ooo_days:
 # grep: Finds the Lua error line in logic.lua including 2 lines after (like a wrapped message)
 # sed: Cleans the prefix (./logic.lua:111:) so only the error message remains.
 # fold: Wraps long lines nicely in your terminal (optional but makes things prettier).
-___luatex_build_with_ooo_days:
-	./assert_required_packages_installed.sh
+make:
+	@./assert_required_packages_installed.sh
 	@mkdir -p $(OUTPUT)
 	@mkdir -p $(INVOICES_FOLDER)
-	@echo "🔧 Building invoice (OOO_DAYS=$(OOO_DAYS))..."
+	@echo "🔧 Building invoice (days off=$(DAYS_OFF), expenses=$(EXPENSES))..."
 	@TEXINPUTS=./$(INPUT_PATH): lualatex --shell-escape --halt-on-error --interaction=nonstopmode --output-directory=$(OUTPUT) $(INPUT_PATH)/$(INPUT_FILE).tex > $(OUTPUT)/build.log 2>&1 || (\
 	  echo "❌ LuaLaTeX build failed. Extracting error:"; \
 	  grep -A 2 '^.*logic.lua:[0-9]*:' build/build.log | sed 's/^.*logic.lua:[0-9]*: //' | fold -s; \
 	  exit 1 \
 	)
-	@echo "✅ LuaLaTeX build successful (OOO_DAYS=$(OOO_DAYS))" && \
+	@echo "✅ LuaLaTeX build successful." && \
 	INVOICE_NUMBER_AND_DATE_CONCATENATED=$$(cat $(INVOICE_NUMBER_AND_DATE_PATH) | tr ' ' $(INVOICE_NUMBER_AND_DATE_SEPARATOR)); \
 	INVOICE_NUMBER=$$(echo $$INVOICE_NUMBER_AND_DATE_CONCATENATED | cut -d $(INVOICE_NUMBER_AND_DATE_SEPARATOR) -f 1); \
 	INVOICE_DATE=$$(echo $$INVOICE_NUMBER_AND_DATE_CONCATENATED | cut -d $(INVOICE_NUMBER_AND_DATE_SEPARATOR) -f 2); \
@@ -54,3 +42,7 @@ ___luatex_build_with_ooo_days:
 	echo "📁 created invoice at '$$INVOICE_FILE_PATH', opening it now..." && \
 	mv $(OUTPUT)/$(INPUT_FILE).pdf $$INVOICE_FILE_PATH && \
 	open $$INVOICE_FILE_PATH
+
+clean:
+	@rm -rf build/
+	@echo "🧹 Cleaned"

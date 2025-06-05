@@ -160,7 +160,7 @@ Which will subtract 5 from the number of working days that month (as calculated 
 
 If you build the invoice without changing any of the example values from [`.envrc.example`](.envrc.example), built with `make DAYS_OFF=3 EXPENSES="'Sandwich,8.67,1';'Coffee,4.20,2'"` it will look like this:
 
-![Example](.github/assets/example_invoice.jpg)
+![Example](.github/assets/example_invoice.png)
 
 # How it works
 

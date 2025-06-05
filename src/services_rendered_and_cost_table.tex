@@ -2,7 +2,7 @@
 \newcolumntype{L}{@{}l@{\extracolsep{\fill}}}% Needs `array` package
 \begin{threeparttable}
 \begin{tabular*}{\linewidth}{Lrcr}\hline\hline
-\textbf{Description}  & \multicolumn{1}{l}{\textbf{Price\textdagger}} &  \multicolumn{1}{l}{\textbf{Qty}} & \multicolumn{1}{l}{\textbf{Total}} \\
+\textbf{Description}  & \multicolumn{1}{l}{\textbf{Cost\textdagger}} &  \multicolumn{1}{l}{\textbf{Qty}} & \multicolumn{1}{l}{\textbf{Total}} \\
 \hline
     \product{\projectName~\previousmonthyear}{\dayRate{}}{\daysToInvoice{}}
     \directlua{emit_expenses_products()}
@@ -11,7 +11,7 @@
 \end{tabular*}
 \begin{tablenotes}
   \footnotesize
-  \item[\textdagger] Daily rate
+  \item[\textdagger] \directlua{cost_legend()}
 \end{tablenotes}
 \end{threeparttable}
 \renewcommand\arraystretch{1}

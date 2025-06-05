@@ -325,6 +325,22 @@ function expenses_for_month_as_string(invoice_month, target_currency)
   return output
 end
 
+function is_expense()
+  -- TODO: fix logic
+  return true
+end
+
+function cost_legend_pure()
+  if is_expense() then
+    return "Price in local currency translated to " .. _get_env("CURRENCY") .. " using exchange rate at date of purchase."
+  end
+  return "Daily Rate"
+end
+
+function cost_legend()
+  tex.print(cost_legend_pure())
+end
+
 function emit_expenses_products()
   local product_table = expenses_for_month_as_string(get_last_month_str(), _get_env("CURRENCY"))
 
